@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: course-registration-db
+    environment:
+      POSTGRES_USER: courseuser
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: CourseRegistrationDb
+    ports:
+      - "5432:5432"
+    volumes:
+      - course_registration_data:/var/lib/postgresql
+      - course_registration_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U courseuser -d CourseRegistrationDb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - course-registration-network
+
+  course-capacity-api:
+    image: course-capacity-api:1.0
+    container_name: course-capacity-api
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=CourseRegistrationDb;Username=courseuser;Password=${POSTGRES_PASSWORD}"
+    ports:
+      - "5101:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - course-registration-network
+
+networks:
+  course-registration-network:
+    external: true
+    name: course-registration-network
+
+volumes:
+  course_registration_pgdata:
+    external: true
+
+  course_registration_data:
+    external: true
