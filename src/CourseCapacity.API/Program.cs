@@ -1,16 +1,14 @@
 
-using CourseCapacity.API.Data;
 using Microsoft.EntityFrameworkCore;
+using Registration.API.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Đăng ký Controllers
+// Add services to the container.
 builder.Services.AddControllers();
-
-// Đăng ký OpenAPI
 builder.Services.AddOpenApi();
 
-// Đăng ký PostgreSQL Database
+// Configure PostgreSQL database.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection")
@@ -19,7 +17,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 var app = builder.Build();
 
-// Cấu hình HTTP Request Pipeline
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
